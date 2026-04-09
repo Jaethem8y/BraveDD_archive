@@ -400,6 +400,8 @@ class BRAVE_DD::BinaryOperation : public Operation {
     Edge operateLL(const Level lvl, const Edge& e1, const Edge& e2);
     Edge operateHH(const Level lvl, const Edge& e1, const Edge& e2);
     Edge operateLH(const Level lvl, const Edge& e1, const Edge& e2);
+    Edge operateS(const Level lvl, const Level clvl, const Edge& e1, const Edge& e2);
+    Edge operateD(const Level lvl, const Level clvl, const Edge& e1, const Edge& e2);
     // list
     friend class BinaryList;
     BinaryOperation*    next;

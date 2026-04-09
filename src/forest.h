@@ -329,6 +329,29 @@ class BRAVE_DD::Forest {
         }
         Edge ans;
         ReductionRule rule = edge.getRule();
+        if ((rule == RULE_00) && (lvl > edge.getNodeLevel())) {
+            if (index == 0) {
+                ans = getChildEdge(edge.getNodeLevel(), edge.getNodeHandle(), edge.getSwap(0));
+                if (edge.getComp()) ans.complement();
+                return ans;
+            } else {
+                ans = normalizeEdge(lvl-1, edge);
+                return ans;
+            }
+        }
+        
+        if ((rule == RULE_11) && (lvl > edge.getNodeLevel())) {
+            if (index == 1) {
+                ans = getChildEdge(edge.getNodeLevel(), edge.getNodeHandle(), !edge.getSwap(0));
+                if (edge.getComp()) ans.complement();
+                return ans;
+            } else {
+                
+                ans = normalizeEdge(lvl-1, edge);
+                return ans;
+            }
+        }
+       
         if ((isRuleEL(rule) && (index == 0)) || (isRuleEH(rule) && (index == 1))
             || (isRuleAL(rule) && (lvl - edge.getNodeLevel() == 1) && (index == 0))
             || (isRuleAH(rule) && (lvl - edge.getNodeLevel() == 1) && (index == 1))
@@ -594,6 +617,8 @@ class BRAVE_DD::Forest {
      * @return Edge         - Output: merged edge (label, target node handle).
      */
     Edge mergeEdge(const Level beginLevel, const Level mergeLevel, const EdgeLabel label, const Edge& reduced, const Value& value = Value());
+
+    Edge mergeEdge(const Level beginLevel, const Level mergeLevel, const EdgeLabel label, const Edge& reduced, const Edge& child);
 
     /**
      * @brief Check if the swap-all bit is useless, by giving the parent forest and edge

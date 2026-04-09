@@ -1506,6 +1506,105 @@ Edge BinaryOperation::computeElmtWise(const Level lvl, const Edge& source1, cons
 #ifdef BRAVE_DD_OPERATION_TRACE
     std::cout << "\tcheck if recursive computing\n";
 #endif
+
+    if (resForest->getSetting().hasReductionRule(RULE_00)) {
+        // Do not change this
+        if (m1 == lvl) {
+        // if (true) {
+            ans = operateS(lvl, lvl, e1, e2);
+
+            cacheAdd(0, lvl, e1, e2, ans);
+            return ans;
+        }
+        // lvl > m1 >= m2
+        ReductionRule r1 = e1.getRule();
+        ReductionRule r2 = e2.getRule();
+        bool canISkip = true;
+
+        if (r1 == RULE_00) {
+            Edge targetChild = resForest->cofact(m1, e1, 0);
+            if (targetChild.getRule() != RULE_X) canISkip = false;
+        }
+        if (r1 == RULE_11) {
+            Edge targetChild = resForest->cofact(m1, e1, 1);
+            if (targetChild.getRule() != RULE_X) canISkip = false;
+        }
+
+        if (r2 == RULE_00) {
+            Edge targetChild = resForest->cofact(m1, e2, 0);
+            if (targetChild.getRule() != RULE_X) canISkip = false;
+        }
+        if (r2 == RULE_11) {
+            Edge targetChild = resForest->cofact(m1, e2, 1);
+            if (targetChild.getRule() != RULE_X) canISkip = false;
+        }
+
+        // one of the rule is X 
+        if (r1 == RULE_X || r2 == RULE_X) {
+            canISkip = true;
+        }
+
+        if (!canISkip && r1 == r2) {
+            Edge tc1 = resForest->cofact(m1, e1, r1 == RULE_11);
+            Edge tc2 = resForest->cofact(m1, e2, r2 == RULE_11);
+            ReductionRule tr1 = tc1.getRule();
+            ReductionRule tr2 = tc2.getRule();
+            if (tr1 == tr2) canISkip = true;
+        }
+
+        if (!canISkip) {
+            ans = operateS(lvl, lvl, e1, e2);      
+            cacheAdd(0, lvl, e1, e2, ans);
+            return ans;
+        }
+
+        Level cofactLvl;
+        if (r1 == RULE_X) {
+            if (r2 == RULE_X) {
+                cofactLvl = m1;
+                ans = operateS(lvl, cofactLvl, e1, e2);
+            } else if (r2 == RULE_00 || r2 == RULE_11) {
+                cofactLvl = m1+1;
+                ans = operateS(lvl, cofactLvl, e2, e1);
+            }           
+        } else if (r1 == RULE_00 || r1 == RULE_11) {
+            if (r2 == RULE_X) {
+                cofactLvl = m1 > m2 ? m1 : m1 + 1;
+                ans = operateS(lvl, cofactLvl, e1, e2);      
+            } else if (r2 == RULE_00 || r2 == RULE_11) {
+                cofactLvl = m1;
+                if (r1 == r2) {
+                    ans = operateS(lvl, cofactLvl, e1, e2);
+                } else {
+                    if (r1 == RULE_00) {
+                        ans = operateD(lvl, cofactLvl, e1, e2);
+                    } else {
+                       ans = operateD(lvl, cofactLvl, e2, e1);
+                    }
+                }
+            }         
+        } else {
+            std::cout << "I guess we have a missing case lol" << std::endl;
+            exit(0);
+        }
+
+        cacheAdd(0, lvl, e1, e2, ans);
+        return ans;
+#ifdef BRAVE_DD_OPERATION_TRACE
+    std::cout << std::endl;
+    std::cout << "rule1: " << rule2String(r1) << " rule2: " << rule2String(r2) << std::endl;
+    std::cout << "child 1: ";
+    child1[0].print(std::cout);
+    std::cout << " , ";
+    child1[1].print(std::cout);
+    std::cout << std::endl;
+    std::cout << "child 2: ";
+    child2[0].print(std::cout);
+    std::cout << " , ";
+    child2[1].print(std::cout);
+    std::cout << std::endl;
+#endif    
+    }
     if (m1 == lvl) {
         std::vector<Edge> child1, child2, tmp;
         if (resForest->getSetting().isRelation()) {
@@ -2126,7 +2225,60 @@ Edge BinaryOperation::operateLH(const Level lvl, const Edge& e1, const Edge& e2)
     return ans;
 }
 
-// ******************************************************************
+Edge BinaryOperation::operateS(const Level lvl, const Level clvl, const Edge& e1, const Edge& e2)
+{
+    std::vector<Edge> child(2);
+    for (char i=0; i<2; i++) {
+        Edge p = resForest->cofact(clvl, e1, i);
+        Edge q = resForest->cofact(clvl, e2, i);
+        child[i] = computeElmtWise(clvl-1, p, q);
+    }
+
+    EdgeLabel root=0;
+    packRule(root, e1.getRule());
+    if (lvl == clvl) packRule(root, RULE_X);
+    
+    Edge ans = resForest->reduceEdge(lvl, root, clvl, child);
+    return ans;
+}
+
+// We assume that e1 is 00
+Edge BinaryOperation::operateD(const Level lvl, const Level clvl, const Edge& e1, const Edge& e2)
+{
+    std::vector<Edge> oChild(2);
+    std::vector<Edge> aChild(2);
+    
+    Edge p = resForest->cofact(clvl, e1, 0);
+    Edge q = resForest->cofact(clvl, e1, 1);
+    Edge r = resForest->cofact(clvl, e2, 0);
+    Edge s = resForest->cofact(clvl, e2, 1);
+
+    std::vector<Edge> child1(2);
+    child1[0] = computeElmtWise(clvl-1, p, r);
+    child1[1] = computeElmtWise(clvl-1, p, s);
+
+    std::vector<Edge> child2(2);
+    child2[0] = child1[1];
+    child2[1] = computeElmtWise(clvl-1, q, s);
+
+    std::vector<Edge> child(2);
+    EdgeLabel root1=0;
+    packRule(root1, RULE_11);
+    if (lvl-1 == clvl) {
+        packRule(root1, RULE_X);
+    }
+    child[0] = resForest->reduceEdge(lvl-1, root1, clvl, child1);
+
+
+    EdgeLabel root2=0;
+    packRule(root2, RULE_00);
+    child[1] = resForest->reduceEdge(lvl-1, root2, clvl, child2);
+
+    EdgeLabel root3=0;
+    packRule(root3, RULE_X);
+    Edge ans = resForest->reduceEdge(lvl, root3, lvl, child);
+    return ans;
+}// ******************************************************************
 // *                                                                *
 // *                       BinaryList  methods                      *
 // *                                                                *

@@ -94,7 +94,9 @@ ForestSetting::ForestSetting(const PredefForest type, const unsigned numVals, co
         reductions = Reductions(USER_DEFINED);
         addReductionRule(RULE_X);
         addReductionRule(RULE_EL0);
+        addReductionRule(RULE_EL1);
         addReductionRule(RULE_EH0);
+        addReductionRule(RULE_EH1);
         flags.setCompType(COMP);
         mergeType = PUSH_UP;
         name = "CESRBDD";
@@ -157,6 +159,12 @@ ForestSetting::ForestSetting(const PredefForest type, const unsigned numVals, co
         // setting for EVQBMxD
     } else if (type == PredefForest::EVFBMXDs) {
         // setting for EVFBMxD
+    } else if (type == PredefForest::ROAR) {
+        reductions = Reductions(ROAR);
+        mergeType = PUSH_UP;
+        name = "ROAR";
+        setCompType(COMP);
+        setSwapType(ONE);
     } else {
         // Unknown predefined BDD or BMxD
         std::cout << "[BRAVE_DD] ERROR!\t Unknown BDD/MxD!" << std::endl;
@@ -372,7 +380,7 @@ void ForestSetting::output(std::ostream& out, int format) const
         // reduction rules
         out<<"\tNumber of rules:\t"<<getReductionSize()<<std::endl;
         std::string rules = "";
-        for (int rule=0; rule<=10; rule++) {
+        for (int rule=0; rule<=15; rule++) {
             if (hasReductionRule((ReductionRule)rule)) {
                 rules += rule2String((ReductionRule)rule);
                 rules += "  ";

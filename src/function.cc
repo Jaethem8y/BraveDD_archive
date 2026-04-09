@@ -319,6 +319,7 @@ Value Func::evaluate(const std::vector<bool>& assignment) const
     while (true) {
 #ifdef BRAVE_DD_TRACE
         std::cout<<"evaluate k: " << k;
+        std::cout << "; assignment: " << assignment[k];
         std::cout<<"; currt: ";
         current.print(std::cout, 0);
         std::cout << std::endl;
@@ -326,7 +327,28 @@ Value Func::evaluate(const std::vector<bool>& assignment) const
         /* check the incoming edge's reduction rule for terminal cases */
         ReductionRule incoming = current.getRule();
         /* if incoming edge skips levels */
-        if ((targetLvl < k) && (incoming != RULE_X)) {
+        if ((targetLvl < k) && (incoming == RULE_00)) {
+            if (assignment[k] == 0) {
+                bool isComp = current.getComp();
+                current = parent->getChildEdge(targetLvl, targetHandle, current.getSwap(0));
+                if (isComp) current.complement();
+            } 
+            k--;
+            targetHandle = current.getNodeHandle();
+            targetLvl = current.getNodeLevel();
+            continue;
+        } 
+        else if ((targetLvl < k) && (incoming == RULE_11)) {
+            if (assignment[k] == 1) {
+                bool isComp = current.getComp();
+                current = parent->getChildEdge(targetLvl, targetHandle, !current.getSwap(0));
+                if (isComp) current.complement();
+            } 
+            k--;
+            targetHandle = current.getNodeHandle();
+            targetLvl = current.getNodeLevel();
+            continue;
+        } else if ((targetLvl < k) && (incoming != RULE_X)) {
             // determine flags of all-ones and exist-ones
             for (Level i=k; i>targetLvl; i--) {
                 allOne &= assignment[i];
@@ -337,26 +359,15 @@ Value Func::evaluate(const std::vector<bool>& assignment) const
                 if ((allOne && isRuleAH(incoming))
                     || ((!allOne) && isRuleEL(incoming))
                     || (existOne && isRuleEH(incoming))
-                    || ((!existOne) && isRuleAL(incoming))) {
-                    if (vt == INT || vt == LONG) ans.setValue(hasRuleTerminalOne(incoming)?1:0, INT);
-                    else ans.setValue(hasRuleTerminalOne(incoming)?1.0f:0.0f, FLOAT);
+                    || ((!existOne) && isRuleAL(incoming))
+                ) {
+                    ans.setValue(hasRuleTerminalOne(incoming)?1:0, INT);
                     return ans;
                 }
-            } else if (encode == EDGE_PLUS || encode == EDGE_PLUSMOD) {
-                // edge values plus
-                if ((targetLvl == 0) 
-                    && isTerminalSpecial(current.getEdgeHandle()) 
-                    && !isTerminalSpecial(SpecialValue::OMEGA, current.getEdgeHandle())) {
-                    return getTerminalValue(current.getEdgeHandle());
-                }
-                std::cout << "[BRAVE_DD] ERROR!\t evaluate(): Illegal patterns for EVBDD!" << std::endl;
-                exit(0);
-            } else if (encode == EDGE_MULT) {
-                // edge values multiply
-                // TBD
             }
-        }
-        if (targetLvl > 0) {
+            // continue;
+
+        } else if (targetLvl > 0) {
             /* short incoming edge, or long incoming edge but skips */
             k = targetLvl-1;
             isSwap = (st==ONE || st==ALL) ? current.getSwap(0) : 0;
@@ -371,12 +382,6 @@ Value Func::evaluate(const std::vector<bool>& assignment) const
             targetHandle = current.getNodeHandle();
             targetLvl = current.getNodeLevel();
 
-            /* cumulate the edge values*/
-            if (encode == EDGE_PLUS || encode == EDGE_PLUSMOD) {
-                Value cv = current.getValue();
-                if (vt == INT) ans = Value(ans.getIntValue() + cv.getIntValue());
-                else if (vt == LONG) ans = Value(ans.getLongValue() + cv.getLongValue());
-            }
 #ifdef BRAVE_DD_TRACE
             std::cout<<"next currt: k="<< k <<", targetlvl=" << targetLvl << "; ";
             current.print(std::cout, 0);

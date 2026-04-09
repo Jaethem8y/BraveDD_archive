@@ -15,7 +15,8 @@ namespace BRAVE_DD {
         QUASI_QUASI,        // -+
         FULLY_FULLY,        //  +---- only applicable if variable dimension is 2
         IDENTITY_IDENTITY,  //  |
-        FULLY_IDENTITY      // -+
+        FULLY_IDENTITY,     // -+
+        ROAR, 
     };
     static inline std::string reductionType2String(ReductionType rdt) {
         std::string redType;
@@ -37,6 +38,8 @@ namespace BRAVE_DD {
             redType = "Identity-Identity";
         } else if (rdt == FULLY_IDENTITY) {
             redType = "Fully-Identity";
+        } else if (rdt == ROAR) {
+            redType = "Roar";
         } else {
             redType = "Unknown";
         }
@@ -76,7 +79,9 @@ namespace BRAVE_DD {
         RULE_AH1 = 7,
         RULE_I0  = 8,
         RULE_X   = 9,
-        RULE_I1  = 10
+        RULE_I1  = 10,
+        RULE_00  = 11,
+        RULE_11  = 12,
     } ReductionRule;
     static inline ReductionRule compRule(ReductionRule rule) {
         switch (rule) {
@@ -90,7 +95,9 @@ namespace BRAVE_DD {
             case RULE_AH1: return RULE_AH0;
             case RULE_I0:  return RULE_I1;
             case RULE_X:   return RULE_X;
-            case RULE_I1:  return RULE_I0;
+            case RULE_I1:  return RULE_I0;               
+            case RULE_00:  return RULE_00;
+            case RULE_11:  return RULE_11;
             default: 
                 std::cout << "[BRAVE_DD] ERROR!\t Complement unknown reduction rule!" << std::endl;
                 exit(0);
@@ -109,6 +116,8 @@ namespace BRAVE_DD {
             case RULE_I0:  return RULE_I0;  // swap-from_to
             case RULE_X:   return RULE_X;
             case RULE_I1:  return RULE_I1;  // swap-from_to
+            case RULE_00:  return RULE_00;
+            case RULE_11:  return RULE_11;
             default: 
                 std::cout << "[BRAVE_DD] ERROR!\t Complement unknown reduction rule!" << std::endl;
                 exit(0);
@@ -165,6 +174,8 @@ namespace BRAVE_DD {
             case RULE_I0:  return "I0";
             case RULE_X:   return "X";
             case RULE_I1:  return "I1";
+            case RULE_00:  return "00";
+            case RULE_11:  return "11";
             default: return "UNKNOWN_RULE";
         }
     }
@@ -221,6 +232,8 @@ class BRAVE_DD::Reductions {
             } else if (numOnes == 9 && !ruleSet[RULE_I0] && !ruleSet[RULE_I1]) {
                 // REX
                 ans = REX;
+            } else if (ruleSet[RULE_00] && ruleSet[RULE_11] && ruleSet[RULE_X]) {
+                ans = ROAR;
             }
             return ans;
         }
@@ -240,7 +253,7 @@ class BRAVE_DD::Reductions {
             dimension = 1;
             type = reductionType;
             // init all 0
-            rules = std::vector<bool>(11,0);
+            rules = std::vector<bool>(13,0);
             if (type == QUASI){
                 // not change
             } else if (type == FULLY) {
@@ -269,6 +282,10 @@ class BRAVE_DD::Reductions {
                 rules[RULE_X] = 1;
                 rules[RULE_I0] = 1;
                 // rules[RULE_I1] = 1;
+            } else if (type == ROAR) {
+                rules[RULE_X] = 1;
+                rules[RULE_00] = 1;
+                rules[RULE_11] = 1;
             } else if (type == USER_DEFINED) {
                 // not change for user defined, it should be initialized later
             } else {

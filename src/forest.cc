@@ -554,6 +554,46 @@ Edge Forest::reduceNode(const Level nodeLevel, const std::vector<Edge>& down)
     * BDD for "Set" (Terminal encoding)
     * ================================================================================================*/
     if (!setting.isRelation() && (em == TERMINAL)) {
+        if (setting.hasReductionRule(RULE_00)) {
+            if ((child[0].getEdgeHandle() == child[1].getEdgeHandle()) && (child[0].getRule() == RULE_X)) {
+                return child[0];
+            }
+
+            if (child[1].getNodeLevel() != 0) {
+                if (setting.hasReductionRule(RULE_00))
+                {
+                    Edge oneZero = getChildEdge(child[1].getNodeLevel(), child[1].getNodeHandle(), child[1].getSwap(0));
+                    if(child[1].getComp()) oneZero.complement();
+                    bool a1 = ((nodeLevel == child[1].getNodeLevel() + 1) || child[1].getRule() == RULE_00);
+                    bool a2 = (child[0].getNodeLevel() == oneZero.getNodeLevel()) && (child[0].getNodeHandle() == oneZero.getNodeHandle());
+                    bool a3 = ((child[0].getComp() == oneZero.getComp()) && oneZero.getRule() == child[0].getRule() && child[0].getSwap(0) == oneZero.getSwap(0));
+                    if (a1 && a2 && a3)
+                    {
+                        reduced = child[1];
+                        reduced.setRule(RULE_00);
+                        return reduced;
+                    }
+                }        
+            }
+
+            if (child[0].getNodeLevel() != 0) {
+                if (setting.hasReductionRule(RULE_11))
+                {
+                    Edge zeroOne = getChildEdge(child[0].getNodeLevel(), child[0].getNodeHandle(), !child[0].getSwap(0));
+                    if (child[0].getComp()) zeroOne.complement();
+                    bool o1 = ((nodeLevel == child[0].getNodeLevel() + 1) || child[0].getRule() == RULE_11);
+                    bool o2 = (child[1].getNodeHandle() == zeroOne.getNodeHandle() && child[1].getNodeLevel() == zeroOne.getNodeLevel());
+                    bool o3 = ((child[1].getComp() == zeroOne.getComp()) && zeroOne.getRule() == child[1].getRule() && child[1].getSwap(0) == zeroOne.getSwap(0));
+                    if (o1 && o2 && o3)
+                    {
+                        reduced = child[0];
+                        reduced.setRule(RULE_11);
+                        return reduced;
+                    }
+                }
+            }
+            return normalizeNode(nodeLevel, child);
+        }
         // flag for checking if match any allowed meta-reduction rule
         bool isMatch = 0;
         /* ---------------------------------------------------------------------------------------------
@@ -1120,6 +1160,77 @@ Edge Forest::mergeEdge(const Level beginLevel, const Level mergeLevel, const Edg
     return merged;
 }
 
+Edge Forest::mergeEdge(const Level beginLevel, const Level mergeLevel, const EdgeLabel label, const Edge& reduced, const Edge& target)
+{
+    Edge merged;
+    ReductionRule incomingRule = unpackRule(label);
+    ReductionRule reducedRule = reduced.getRule();
+    Level incomingSkip = beginLevel - mergeLevel;
+    Level reducedSkip  = mergeLevel - reduced.getNodeLevel();
+
+    if (!setting.hasReductionRule(RULE_00)) {
+        std::cout << "new merge edge!" << std::endl;
+        exit(0);
+    }
+    if (incomingSkip == 0) {
+        merged.setEdgeHandle(reduced.getEdgeHandle());
+        return normalizeEdge(beginLevel, merged);
+    }
+    if (reducedSkip == 0) {
+        merged = reduced;
+        merged.setRule(incomingRule);
+        return normalizeEdge(beginLevel, merged);
+    }
+    if (incomingRule != RULE_X && incomingRule != RULE_00 && incomingRule != RULE_11) {
+        std::cout << "not supported incoming rule" << std::endl;
+        exit(0);
+    }
+    if (reducedRule == RULE_X) {
+        return normalizeEdge(beginLevel, reduced);
+    } 
+
+    Edge normalized;
+    std::vector<Edge> child(2);
+    EdgeLabel mergeLabel = 0;
+    packRule(mergeLabel, incomingRule);
+    if (incomingRule == RULE_X) {
+        child[0] = reduced;
+        child[1] = reduced;
+        normalized = reduceEdge(beginLevel, mergeLabel, mergeLevel + 1, child);
+        return normalized;
+    }
+
+    if (incomingRule == RULE_00) {
+        if (reducedRule == RULE_00) {
+            return normalizeEdge(beginLevel, reduced);
+        }
+    
+        if (reducedRule == RULE_11) {
+            child[0] = target;
+            child[1] = reduced;
+            normalized = reduceEdge(beginLevel, mergeLabel, mergeLevel + 1, child);
+            return normalized;
+        }
+    }
+
+    if (incomingRule == RULE_11) {
+        if (reducedRule == RULE_11)
+        {
+            return normalizeEdge(beginLevel, reduced);
+        }
+
+        if (reducedRule == RULE_00)
+        {
+            child[1] = target;
+            child[0] = reduced;
+            normalized = reduceEdge(beginLevel, mergeLabel, mergeLevel + 1, child);
+            return normalized;
+        }
+    }
+    std::cout << "This should not hit at merge edge. Case must not be covered";
+    std::cout << "beginLevel: " << beginLevel << "; mergeLevel: " << mergeLevel << "; incoming: " << incomingRule << "; reducedRule : " << reducedRule << std::endl;
+    exit(0);
+}
 Edge Forest::reduceEdge(const Level beginLevel, const EdgeLabel label, const Level nodeLevel, const std::vector<Edge>& down, const Value& value)
 {
     /* check level */
@@ -1179,7 +1290,13 @@ Edge Forest::reduceEdge(const Level beginLevel, const EdgeLabel label, const Lev
     packRule(mergeLabel, unpackRule(label));
     /* merge incoming edge with reduced node */
     if (setting.getEncodeMechanism() == TERMINAL) {
-        reduced = mergeEdge(beginLevel, nodeLevel, mergeLabel, reduced);
+        if (unpackRule(label) == RULE_00) {
+            reduced = mergeEdge(beginLevel, nodeLevel, mergeLabel, reduced, child[0]);
+        } else if (unpackRule(label) == RULE_11) {
+            reduced = mergeEdge(beginLevel, nodeLevel, mergeLabel, reduced, child[1]);
+        } else {
+            reduced = mergeEdge(beginLevel, nodeLevel, mergeLabel, reduced);
+        }
     } else {
         reduced = mergeEdge(beginLevel, nodeLevel, mergeLabel, reduced, value);
     }
