@@ -241,7 +241,6 @@ int main(int argc, const char **argv) {
   if (strcmp(argv[2], "cesr") == 0) ddType = PredefForest::CESRBDD;
   if (strcmp(argv[2], "roar") == 0) ddType = PredefForest::ROAR;
   ForestSetting setting1(ddType, levels);
-  if (setting1.hasReductionRule(RULE_00)) std::cout << "IT DOES" << std::endl;
   ForestSetting setting2(PredefForest::FBMXD, levels);
 
   Forest *forest1 = new Forest(setting1);
@@ -257,7 +256,7 @@ int main(int argc, const char **argv) {
   }
   // setting1.output(std::cerr);
   compute_saturation(forest1, res1, relations);
-  std::cout << ",";
+  std::cout << std::endl;
   delete forest1;
    // Ok we are comapring the function now
 }
