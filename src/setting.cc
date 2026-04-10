@@ -380,7 +380,7 @@ void ForestSetting::output(std::ostream& out, int format) const
         // reduction rules
         out<<"\tNumber of rules:\t"<<getReductionSize()<<std::endl;
         std::string rules = "";
-        for (int rule=0; rule<=15; rule++) {
+        for (int rule=0; rule<=13; rule++) {
             if (hasReductionRule((ReductionRule)rule)) {
                 rules += rule2String((ReductionRule)rule);
                 rules += "  ";
