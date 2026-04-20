@@ -269,6 +269,5 @@ resisol_08_1.txt.csv
 )
 mkdir -p ZDD 
 for file in "${files[@]}"; do
-    ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${file}"
-zbdd > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/ZDD/${file}.csv"
+    ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${file}" zbdd > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/ZDD/${file}.csv"
 done

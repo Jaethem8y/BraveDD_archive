@@ -268,6 +268,5 @@ resisol_08_1.txt.csv
 )
 mkdir -p UBDD 
 for file in "${files[@]}"; do
-    ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${file}"
-roar > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/UBDD/${file}.csv"
+    ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${file}" roar > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/UBDD/${file}.csv"
 done

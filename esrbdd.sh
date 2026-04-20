@@ -268,6 +268,5 @@ resisol_08_1.txt.csv
 )
 mkdir -p ESR
 for file in "${files[@]}"; do
-    ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${file}"
-esrbdd > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/ESR/${file}.csv"
+    ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${file}" esrbdd > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/ESR/${file}.csv"
 done

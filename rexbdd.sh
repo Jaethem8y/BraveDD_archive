@@ -268,6 +268,5 @@ resisol_08_1.txt.csv
 )
 mkdir -p REX
 for file in "${files[@]}"; do
-    ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${file}"
-rex > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/REX/${file}.csv"
+    ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${file}" rex > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/REX/${file}.csv"
 done
