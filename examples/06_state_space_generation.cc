@@ -237,6 +237,9 @@ int main(int argc, const char **argv) {
   uint16_t levels = initialMarking.size();
   std::cout << levels << ", ";
   PredefForest ddType;
+  if (strcmp(argv[2], "fbdd") == 0) ddType = PredefForest::FBDD;
+  if (strcmp(argv[2], "zbdd") == 0) ddType = PredefForest::ZBDD;
+  if (strcmp(argv[2], "esrbdd") == 0) ddType = PredefForest::ESRBDD;
   if (strcmp(argv[2], "rex") == 0) ddType = PredefForest::REXBDD;
   if (strcmp(argv[2], "cesr") == 0) ddType = PredefForest::CESRBDD;
   if (strcmp(argv[2], "roar") == 0) ddType = PredefForest::ROAR;
