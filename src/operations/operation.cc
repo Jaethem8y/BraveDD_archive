@@ -1549,7 +1549,8 @@ Edge BinaryOperation::computeElmtWise(const Level lvl, const Edge& source1, cons
             Edge tc2 = resForest->cofact(m1, e2, r2 == RULE_11);
             ReductionRule tr1 = tc1.getRule();
             ReductionRule tr2 = tc2.getRule();
-            if (tr1 == tr2) canISkip = true;
+            if (tr1 == RULE_X) canISkip = true;
+            if (tr2 == RULE_X) canISkip = true;
         }
 
         if (!canISkip) {
