@@ -13,7 +13,7 @@ raft_03.txt.csv
 AirplaneLD-pt-0100.txt.csv
 afcs_01_a.txt.csv
 hrec_02.txt.csv
-railroad-010-pt.txt.csv
+
 rwmutex-r10w50.txt.csv
 dekker-15.txt.csv
 neoelection-2.unf.txt.csv
@@ -269,5 +269,6 @@ resisol_08_1.txt.csv
 
 mkdir -p CESR
 for file in "${files[@]}"; do
+    new="${file%.csv}"
     ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${file}" cesr > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/CESR/${file}.csv"
 done

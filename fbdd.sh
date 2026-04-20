@@ -268,5 +268,6 @@ resisol_08_1.txt.csv
 )
 mkdir -p FBDD
 for file in "${files[@]}"; do
+    new="${file%.csv}"
     ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${file}" fbdd > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/FBDD/${file}.csv"
 done
