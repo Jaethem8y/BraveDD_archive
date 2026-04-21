@@ -1,4 +1,3 @@
-
 #!/usr/bin/env bash
 #SBATCH --account=ciardo-lab
 #SBATCH --nodes=1
@@ -270,5 +269,5 @@ resisol_08_1.txt.csv
 mkdir -p ZDD 
 for file in "${files[@]}"; do
      new="${file%.csv}"
-    ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${file}" zbdd > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/ZDD/${file}.csv"
+    ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${new}" zbdd > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/ZDD/${new}.csv"
 done
