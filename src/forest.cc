@@ -1186,7 +1186,7 @@ Edge Forest::mergeEdge(const Level beginLevel, const Level mergeLevel, const Edg
         exit(0);
     }
     if (reducedRule == RULE_X) {
-        return normalizeEdge(beginLevel, reduced);
+        return reduced;
     } 
 
     Edge normalized;
@@ -1196,7 +1196,8 @@ Edge Forest::mergeEdge(const Level beginLevel, const Level mergeLevel, const Edg
     if (incomingRule == RULE_X) {
         child[0] = reduced;
         child[1] = reduced;
-        normalized = reduceEdge(beginLevel, mergeLabel, mergeLevel + 1, child);
+        normalized = normalizeNode(mergeLevel+1, child);
+        normalized.setRule(RULE_X);
         return normalized;
     }
 
@@ -1208,7 +1209,8 @@ Edge Forest::mergeEdge(const Level beginLevel, const Level mergeLevel, const Edg
         if (reducedRule == RULE_11) {
             child[0] = target;
             child[1] = reduced;
-            normalized = reduceEdge(beginLevel, mergeLabel, mergeLevel + 1, child);
+            normalized = normalizeNode(mergeLevel+1, child);
+            normalized.setRule((incomingSkip==1) ? RULE_X : incomingRule);
             return normalized;
         }
     }
@@ -1223,7 +1225,8 @@ Edge Forest::mergeEdge(const Level beginLevel, const Level mergeLevel, const Edg
         {
             child[1] = target;
             child[0] = reduced;
-            normalized = reduceEdge(beginLevel, mergeLabel, mergeLevel + 1, child);
+            normalized = normalizeNode(mergeLevel+1, child);
+            normalized.setRule((incomingSkip==1) ? RULE_X : incomingRule);
             return normalized;
         }
     }
