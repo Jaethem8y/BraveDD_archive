@@ -158,6 +158,7 @@ NodeManager::NodeManager(Forest *f):parent(f)
         chunks.emplace_back(f);  // Directly constructs SubManager
     }
     peak = 0;
+    numNodes = 0;
 }
 NodeManager::~NodeManager()
 {
