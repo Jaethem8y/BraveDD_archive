@@ -21,7 +21,6 @@ NodeManager::SubManager::SubManager(Forest *f):parent(f)
     freeList = 0;
     numFrees = PRIMES[sizeIndex];
     peak = 0;
-    std::cout << "submanager peak in Subman::Subman: " << peak << std::endl;
 }
 NodeManager::SubManager::~SubManager()
 {
@@ -59,7 +58,6 @@ NodeHandle NodeManager::SubManager::getFreeNodeHandle(const Node& node)
     }
     new (&nodes[firstUnalloc]) Node(parent->nodeSize);
     nodes[firstUnalloc].assign(node, parent->nodeSize);
-    std::cout << "getFreeNodehandle: first unalloc" << firstUnalloc << std::endl; 
     if (firstUnalloc > peak) peak = firstUnalloc;   // update peak
     // std::cout << peak << std::endl;
     return firstUnalloc++;
@@ -161,7 +159,6 @@ NodeManager::NodeManager(Forest *f):parent(f)
         chunks.emplace_back(f);  // Directly constructs SubManager
     }
     peak = 0;
-    std::cout << "Node man peak constructor : " << peak << std::endl;
 }
 NodeManager::~NodeManager()
 {

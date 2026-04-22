@@ -34,6 +34,7 @@ class BRAVE_DD::NodeManager {
     inline NodeHandle getFreeNodeHandle(const Level lvl, const Node& node) {
         NodeHandle handle = chunks[lvl-1].getFreeNodeHandle(node);
         // for sure number of used nodes +1
+        std::cout << numNodes << std::endl;
         numNodes++;
         // update peak
         std::cout << "numNodes: " << numNodes << std::endl;
