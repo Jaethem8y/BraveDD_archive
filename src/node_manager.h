@@ -36,8 +36,9 @@ class BRAVE_DD::NodeManager {
         // for sure number of used nodes +1
         numNodes++;
         // update peak
+        std::cout << "numNodes: " << numNodes << std::endl;
         if (numNodes > peak) peak = numNodes;
-        std::cout << peak << std::endl;
+        std::cout << "peak: " << peak << std::endl;
         return handle;
     }
 
