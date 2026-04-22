@@ -555,7 +555,13 @@ Edge Forest::reduceNode(const Level nodeLevel, const std::vector<Edge>& down)
     * ================================================================================================*/
     if (!setting.isRelation() && (em == TERMINAL)) {
         if (setting.hasReductionRule(RULE_00)) {
-            if ((child[0].getEdgeHandle() == child[1].getEdgeHandle()) && (child[0].getRule() == RULE_X)) {
+            if (
+                    (child[0].getNodeLevel() == child[1].getNodeLevel())
+                    && (child[0].getNodeHandle() == child[1].getNodeHandle()) 
+                    && (child[0].getComp() == child[1].getComp()) 
+                    && (child[0].getSwap(0) == child[1].getSwap(0)) 
+                    && (child[0].getRule() == RULE_X)
+            ) {
                 return child[0];
             }
 
