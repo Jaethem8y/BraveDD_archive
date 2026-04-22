@@ -18,6 +18,7 @@ Forest::Forest(const ForestSetting& s):setting(s)
     checkCompatibility();
     nodeSize = setting.nodeSize();
     nodeMan = new NodeManager(this);
+    nodeMan->resetPeak();
     uniqueTable = new UniqueTable(this);
     stats = new Statistics();
 }

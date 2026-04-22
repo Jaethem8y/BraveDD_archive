@@ -168,6 +168,7 @@ Func compute_saturation(Forest *forest1, const Func &target,
   /* Timer end */
   watch.note_time();
 
+  std::cout << "size = " << sizeof(forest1->getNodeManPeak()) << std::endl;
   std::cout << forest1->getNodeManPeak() << " , "
             << forest1->getNodeManUsed(states_Sat) << ", "
             << watch.get_last_seconds();

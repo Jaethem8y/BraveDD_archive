@@ -37,6 +37,7 @@ class BRAVE_DD::NodeManager {
         numNodes++;
         // update peak
         if (numNodes > peak) peak = numNodes;
+        std::cout << peak << std::endl;
         return handle;
     }
 
