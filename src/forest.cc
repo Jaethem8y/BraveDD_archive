@@ -560,7 +560,7 @@ Edge Forest::reduceNode(const Level nodeLevel, const std::vector<Edge>& down)
                     && (child[0].getNodeHandle() == child[1].getNodeHandle()) 
                     && (child[0].getComp() == child[1].getComp()) 
                     && (child[0].getSwap(0) == child[1].getSwap(0)) 
-                    && (child[0].getRule() == RULE_X)
+                    && (child[0].getRule() == RULE_X && child[1].getRule() == RULE_X)
             ) {
                 return child[0];
             }
