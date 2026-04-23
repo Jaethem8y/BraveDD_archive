@@ -244,12 +244,15 @@ int main(int argc, const char **argv) {
   if (strcmp(argv[2], "cesr") == 0) ddType = PredefForest::CESRBDD;
   if (strcmp(argv[2], "roar") == 0) ddType = PredefForest::ROAR;
   ForestSetting setting1(ddType, levels);
+  ForestSetting cs1(PredefForest::REXBDD, levels);
   ForestSetting setting2(PredefForest::FBMXD, levels);
 
   Forest *forest1 = new Forest(setting1);
   Forest *forest2 = new Forest(setting2);
+  Forest* cf1 = new Forest(cs1);
 
   Func res1 = buildInit(forest1, initialMarking);
+  Func res2 = buildInit(cf1, initialMarking);
 
   std::vector<Func> relations;
   for (uint32_t i = 0; i < inputs.size(); i++) {
@@ -258,7 +261,13 @@ int main(int argc, const char **argv) {
     relCache.clear();
   }
   // setting1.output(std::cerr);
-  compute_saturation(forest1, res1, relations);
+  Func orig = compute_saturation(forest1, res1, relations);
+  Func tar = compute_saturation(cf1, res2, relations);
+  Func comp(cf1);
+  apply(COPY, orig, comp);
+  if (tar.getEdge().getEdgeHandle() != comp.getEdge().getEdgeHandle()) {
+    std::cout << "NOOOOOOOOOOO" << std::endl;
+  }
   std::cout << std::endl;
   delete forest1;
   delete forest2;
