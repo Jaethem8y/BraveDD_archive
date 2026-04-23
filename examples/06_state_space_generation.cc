@@ -261,5 +261,6 @@ int main(int argc, const char **argv) {
   compute_saturation(forest1, res1, relations);
   std::cout << std::endl;
   delete forest1;
+  delete forest2;
    // Ok we are comapring the function now
 }
