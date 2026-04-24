@@ -168,9 +168,6 @@ Func compute_saturation(Forest *forest1, const Func &target,
   /* Timer end */
   watch.note_time();
 
-  std::cout << forest1->getNodeManPeak() << " , "
-            << forest1->getNodeManUsed(states_Sat) << ", "
-            << watch.get_last_seconds();
   return states_Sat;
 }
 int main(int argc, const char **argv) {
@@ -244,15 +241,18 @@ int main(int argc, const char **argv) {
   if (strcmp(argv[2], "cesr") == 0) ddType = PredefForest::CESRBDD;
   if (strcmp(argv[2], "roar") == 0) ddType = PredefForest::ROAR;
   ForestSetting setting1(ddType, levels);
-  ForestSetting cs1(PredefForest::REXBDD, levels);
+  ForestSetting rexSetting(PredefForest::REXBDD, levels);
   ForestSetting setting2(PredefForest::FBMXD, levels);
 
   Forest *forest1 = new Forest(setting1);
   Forest *forest2 = new Forest(setting2);
-  Forest* cf1 = new Forest(cs1);
+  
+  Forest* copyForest = new Forest(setting1);
+  Forest* rexForest = new Forest(rexSetting);
 
   Func res1 = buildInit(forest1, initialMarking);
-  Func res2 = buildInit(cf1, initialMarking);
+  Func res2 = buildInit(rexForest, initialMarking);
+  Func rexInit = buildInit(rexForest, initialMarking);
 
   std::vector<Func> relations;
   for (uint32_t i = 0; i < inputs.size(); i++) {
@@ -261,14 +261,19 @@ int main(int argc, const char **argv) {
     relCache.clear();
   }
   // setting1.output(std::cerr);
-  Func orig = compute_saturation(forest1, res1, relations);
-  Func tar = compute_saturation(cf1, res2, relations);
-  Func comp(cf1);
-  apply(COPY, orig, comp);
-  if (tar.getEdge().getEdgeHandle() != comp.getEdge().getEdgeHandle()) {
-    std::cout << "NOOOOOOOOOOO" << std::endl;
+  Func originalUBDD= compute_saturation(forest1, res1, relations);
+  Func originalREX = compute_saturation(rexForest, res2, relations);
+  Func compREX(rexForest);
+  Func compUBDD(copyForest);
+  apply(COPY, originalUBDD , compUBDD);
+  if (forest1->getNodeManUsed(originalUBDD) != copyForest->getNodeManUsed(compUBDD)) {
+    std::cout << "Error in reduce"<< std::endl;
   }
-  std::cout << std::endl;
+  apply(COPY, originalUBDD, compREX);
+  if (compREX.getEdge().getEdgeHandle() != originalREX.getEdge().getEdgeHandle()) {
+    std::cout << "Error in function" << std::endl;
+  }
+
   delete forest1;
   delete forest2;
    // Ok we are comapring the function now
