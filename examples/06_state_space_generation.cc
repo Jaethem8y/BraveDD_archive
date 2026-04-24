@@ -1,10 +1,87 @@
 // #include "brave_dd.h"
 #include "../src/brave_dd.h"
 #include <sstream>
+#include <unordered_map>
 
 #include "timer.h"
 
 using namespace BRAVE_DD;
+
+std::unordered_map<Level, std::unordered_map<NodeHandle, bool>> nodeCache;
+uint32_t highZeros = 0;
+uint32_t lowZeros = 0;
+uint32_t highOnes = 0;
+uint32_t lowOnes = 0;
+
+void countNode(Forest* forest,Edge& edge) {
+  if (edge.getNodeLevel() == 0) return;
+  Level nodeLevel = edge.getNodeLevel();
+  NodeHandle nodeHandle = edge.getNodeHandle();
+  auto iterator = nodeCache.find(nodeLevel);
+  if (iterator != nodeCache.end() && iterator->second.find(nodeHandle) != iterator->second.end()) {
+    return;
+  }
+
+  std::vector<Edge> child(2);
+  child[0] = forest->cofact(nodeLevel, edge, 0);
+  child[1] = forest->cofact(nodeLevel, edge, 1);
+
+  if ((child[0].getNodeLevel() == child[1].getNodeLevel()) && (child[0].getNodeLevel() == 0)) {
+    if (child[0].isConstantZero()) {
+      lowZeros++;
+    } else if (child[0].isConstantOne()) {
+      lowOnes++;
+    }
+    return;
+  } 
+ if (child[0].getNodeLevel() == 0) {
+    if (child[1].getRule() == RULE_X) {
+      if (child[0].isConstantZero()) {
+        lowZeros++;
+      } else if (child[0].isConstantOne()) {
+        lowOnes++; 
+      }
+    }
+    if (nodeCache.find(nodeLevel) != nodeCache.end()) {
+      nodeCache[nodeLevel][nodeHandle] = 1; 
+    } else {
+      nodeCache[nodeLevel] = {};
+      nodeCache[nodeLevel][nodeHandle] = 1;
+    }
+    countNode(forest, child[1]);
+    
+
+    return;
+  } 
+  
+  if (child[1].getNodeLevel() == 0) {
+    if (child[0].getRule() == RULE_X) {
+      if (child[1].isConstantZero()) {
+        highZeros++;
+      } else if (child[1].isConstantOne()) {
+        highOnes++;
+      }
+    }
+    if (nodeCache.find(nodeLevel) != nodeCache.end()) {
+       nodeCache[nodeLevel][nodeHandle] = 1; 
+    } else {
+      nodeCache[nodeLevel] = {};
+      nodeCache[nodeLevel][nodeHandle] = 1;
+    }
+    countNode(forest, child[0]); 
+    return;
+  }
+
+  countNode(forest, child[0]);
+  countNode(forest, child[0]);
+  if (nodeCache.find(nodeLevel) != nodeCache.end()) {
+   nodeCache[nodeLevel][nodeHandle] = 1; 
+  } else {
+    nodeCache[nodeLevel] = {};
+    nodeCache[nodeLevel][nodeHandle] = 1;
+  }
+  return;
+}
 
 std::unordered_map<uint16_t, Edge> setCache;
 Edge buildSetEdge(Forest *forest, uint16_t numvars, uint16_t targetLevel,
@@ -167,10 +244,15 @@ Func compute_saturation(Forest *forest1, const Func &target,
   apply(SATURATE, target, relations, states_Sat);
   /* Timer end */
   watch.note_time();
-
+  std::cerr << "Peak Nodes: " << forest1->getNodeManPeak() << ","
+            << "Final Nodes: " << forest1->getNodeManUsed(states_Sat) << ","
+            << "Operation time: " << watch.get_last_seconds() << std::endl;
   std::cout << forest1->getNodeManPeak() << " , "
             << forest1->getNodeManUsed(states_Sat) << ", "
             << watch.get_last_seconds();
+
+  Edge targ = states_Sat.getEdge();
+  countNode(forest1, targ);
   return states_Sat;
 }
 int main(int argc, const char **argv) {
@@ -260,6 +342,11 @@ int main(int argc, const char **argv) {
   // setting1.output(std::cerr);
   compute_saturation(forest1, res1, relations);
   std::cout << std::endl;
+  std::cout << "h0: " << highZeros << std::endl;
+  std::cout << "h1: " << highOnes << std::endl;
+  std::cout << "l0: " << lowZeros << std::endl;
+  std::cout << "l1: " << lowOnes << std::endl;
+  std::cout << "total: " << highZeros + highOnes + lowZeros + lowOnes;
   delete forest1;
   delete forest2;
    // Ok we are comapring the function now
