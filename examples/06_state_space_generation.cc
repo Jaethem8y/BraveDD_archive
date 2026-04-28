@@ -8,10 +8,7 @@
 using namespace BRAVE_DD;
 
 std::unordered_map<Level, std::unordered_map<NodeHandle, bool>> nodeCache;
-uint32_t highZeros = 0;
-uint32_t lowZeros = 0;
-uint32_t highOnes = 0;
-uint32_t lowOnes = 0;
+std::unordered_map<ReductionRule, uint16_t> edgeMap;
 
 void countNode(Forest* forest,Edge& edge) {
   if (edge.getNodeLevel() == 0) return;
@@ -26,59 +23,27 @@ void countNode(Forest* forest,Edge& edge) {
   child[0] = forest->cofact(nodeLevel, edge, 0);
   child[1] = forest->cofact(nodeLevel, edge, 1);
 
-  if ((child[0].getNodeLevel() == child[1].getNodeLevel()) && (child[0].getNodeLevel() == 0)) {
-    if (child[0].isConstantZero()) {
-      lowZeros++;
-    } else if (child[0].isConstantOne()) {
-      lowOnes++;
-    }
-    return;
-  } 
- if (child[0].getNodeLevel() == 0) {
-    if (child[1].getRule() == RULE_X) {
-      if (child[0].isConstantZero()) {
-        lowZeros++;
-      } else if (child[0].isConstantOne()) {
-        lowOnes++; 
-      }
-    }
-    if (nodeCache.find(nodeLevel) != nodeCache.end()) {
-      nodeCache[nodeLevel][nodeHandle] = 1; 
-    } else {
-      nodeCache[nodeLevel] = {};
-      nodeCache[nodeLevel][nodeHandle] = 1;
-    }
-    countNode(forest, child[1]);
-    
-
-    return;
-  } 
-  
-  if (child[1].getNodeLevel() == 0) {
-    if (child[0].getRule() == RULE_X) {
-      if (child[1].isConstantZero()) {
-        highZeros++;
-      } else if (child[1].isConstantOne()) {
-        highOnes++;
-      }
-    }
-    if (nodeCache.find(nodeLevel) != nodeCache.end()) {
-       nodeCache[nodeLevel][nodeHandle] = 1; 
-    } else {
-      nodeCache[nodeLevel] = {};
-      nodeCache[nodeLevel][nodeHandle] = 1;
-    }
-    countNode(forest, child[0]); 
-    return;
+  if (edgeMap.find(child[0].getRule()) != edgeMap.end()) {
+    edgeMap[child[0].getRule()] ++;
+  } else {
+    edgeMap[child[0].getRule()] = 1;
   }
-
-  countNode(forest, child[0]);
-  countNode(forest, child[0]);
+  if (edgeMap.find(child[1].getRule()) != edgeMap.end()) {
+    edgeMap[child[1].getRule()] ++;
+  } else {
+    edgeMap[child[1].getRule()] = 1;
+  }
   if (nodeCache.find(nodeLevel) != nodeCache.end()) {
    nodeCache[nodeLevel][nodeHandle] = 1; 
   } else {
     nodeCache[nodeLevel] = {};
     nodeCache[nodeLevel][nodeHandle] = 1;
+  }
+  if (child[0].getNodeLevel() != 0) {
+    countNode(forest, child[0]);
+  }
+  if (child[1].getNodeLevel() != 0) {
+    countNode(forest, child[1]);
   }
   return;
 }
@@ -341,12 +306,11 @@ int main(int argc, const char **argv) {
   }
   // setting1.output(std::cerr);
   compute_saturation(forest1, res1, relations);
+  std::cout << ", ";
+  for (int i=0; i <= 12; i++) {
+    std::cout << rule2String((ReductionRule) i) << " : " << edgeMap[(ReductionRule)i] << ", ";
+  }
   std::cout << std::endl;
-  std::cout << "h0: " << highZeros << std::endl;
-  std::cout << "h1: " << highOnes << std::endl;
-  std::cout << "l0: " << lowZeros << std::endl;
-  std::cout << "l1: " << lowOnes << std::endl;
-  std::cout << "total: " << highZeros + highOnes + lowZeros + lowOnes;
   delete forest1;
   delete forest2;
    // Ok we are comapring the function now
