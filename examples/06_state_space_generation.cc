@@ -217,6 +217,11 @@ Func compute_saturation(Forest *forest1, const Func &target,
             << watch.get_last_seconds();
 
   Edge targ = states_Sat.getEdge();
+  if (edgeMap.find(targ.getRule()) != edgeMap.end()) {
+    edgeMap[targ.getRule()] ++;
+  } else {
+    edgeMap[targ.getRule()] = 1;
+  }
   countNode(forest1, targ);
   return states_Sat;
 }
