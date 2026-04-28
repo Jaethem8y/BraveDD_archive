@@ -30,5 +30,5 @@ shield_t_iip_001_a.txt.csv
 mkdir -p COUNT_REX 
 for file in "${files[@]}"; do
      new="${file%.csv}"
-    ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${new}" rex > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/COUNT_REX/${new}.csv"
+    ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${new}" rex > "/lustre/hdd/LAS/ciardo-lab/jae/another/BraveDD_archive/COUNT_REX/${new}.csv"
 done
