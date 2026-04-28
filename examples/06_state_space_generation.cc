@@ -313,7 +313,7 @@ int main(int argc, const char **argv) {
   compute_saturation(forest1, res1, relations);
   std::cout << ", ";
   for (int i=0; i <= 12; i++) {
-    std::cout << rule2String((ReductionRule) i) << " : " << edgeMap[(ReductionRule)i] << ", ";
+    std::cout << edgeMap[(ReductionRule)i] << ", ";
   }
   std::cout << std::endl;
   delete forest1;
