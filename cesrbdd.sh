@@ -13,7 +13,6 @@ raft_03.txt.csv
 AirplaneLD-pt-0100.txt.csv
 afcs_01_a.txt.csv
 hrec_02.txt.csv
-
 rwmutex-r10w50.txt.csv
 dekker-15.txt.csv
 neoelection-2.unf.txt.csv
