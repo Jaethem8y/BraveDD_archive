@@ -27,8 +27,8 @@ shield_t_iip_003_a.txt.csv
 shield_t_iip_002_a.txt.csv
 shield_t_iip_001_a.txt.csv
 )
-mkdir -p COUNT 
+mkdir -p COUNT_REX 
 for file in "${files[@]}"; do
      new="${file%.csv}"
-    ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${new}" roar > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/COUNT/${new}.csv"
+    ./build/examples/06_state_space_generation "/lustre/hdd/LAS/ciardo-lab/jae/files/${new}" rex > "/lustre/hdd/LAS/ciardo-lab/jae/BraveDD_archive/COUNT_REX/${new}.csv"
 done
