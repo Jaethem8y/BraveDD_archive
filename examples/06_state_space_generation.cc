@@ -2,48 +2,86 @@
 #include "../src/brave_dd.h"
 #include <sstream>
 #include <unordered_map>
-
+#include <string>
 #include "timer.h"
 
 using namespace BRAVE_DD;
 
 std::unordered_map<Level, std::unordered_map<NodeHandle, bool>> nodeCache;
+std::unordered_map<Level, std::unordered_map<NodeHandle, std::unordered_map<bool, bool>>> nodeCount;
+uint64_t counter = 0;
+uint64_t counter1 = 0;
+uint64_t counter2 = 0;
 std::unordered_map<ReductionRule, uint16_t> edgeMap;
 
 void countNode(Forest* forest,Edge& edge) {
-  if (edge.getNodeLevel() == 0) return;
+  if (edge.getNodeLevel() == 0) {
+    return;
+  }
   Level nodeLevel = edge.getNodeLevel();
   NodeHandle nodeHandle = edge.getNodeHandle();
   auto iterator = nodeCache.find(nodeLevel);
   if (iterator != nodeCache.end() && iterator->second.find(nodeHandle) != iterator->second.end()) {
     return;
   }
-
+  
   std::vector<Edge> child(2);
   child[0] = forest->cofact(nodeLevel, edge, 0);
   child[1] = forest->cofact(nodeLevel, edge, 1);
+ 
+  if (nodeCount.find(child[0].getNodeLevel()) == nodeCount.end()) {
+    nodeCount[child[0].getNodeLevel()] = {};
+  }
 
-  if (edgeMap.find(child[0].getRule()) != edgeMap.end()) {
-    edgeMap[child[0].getRule()] ++;
-  } else {
-    edgeMap[child[0].getRule()] = 1;
+  if (nodeCount[child[0].getNodeLevel()].find(child[0].getNodeHandle()) == nodeCount[child[0].getNodeLevel()].end()) {
+    nodeCount[child[0].getNodeLevel()][child[0].getNodeHandle()] = {};
   }
-  if (edgeMap.find(child[1].getRule()) != edgeMap.end()) {
-    edgeMap[child[1].getRule()] ++;
-  } else {
-    edgeMap[child[1].getRule()] = 1;
+
+  if (nodeCount[child[0].getNodeLevel()][child[0].getNodeHandle()].find(child[0].getRule()) == nodeCount[child[0].getNodeLevel()][child[0].getNodeHandle()].end()) {
+    nodeCount[child[0].getNodeLevel()][child[0].getNodeHandle()][child[0].getRule()] = true;
   }
+  nodeCount[child[0].getNodeLevel()][child[0].getNodeHandle()][child[0].getRule()] = true;
+
+  countNode(forest, child[0]);
+  countNode(forest, child[1]);
+  
+  for (int i=0; i<2; i++) {
+    if (nodeCount.find(child[i].getNodeLevel()) == nodeCount.end()) {
+      nodeCount[child[i].getNodeLevel()] = {};
+    }
+
+    if (nodeCount[child[i].getNodeLevel()].find(child[i].getNodeHandle()) == nodeCount[child[i].getNodeLevel()].end()) {
+      nodeCount[child[i].getNodeLevel()][child[i].getNodeHandle()] = {};
+    }
+    
+    if (nodeCount[child[i].getNodeLevel()][child[i].getNodeHandle()].find(0) == nodeCount[child[i].getNodeLevel()][child[i].getNodeHandle()].end()) {
+      nodeCount[child[i].getNodeLevel()][child[i].getNodeHandle()][0] = 0;
+    }
+    if (nodeCount[child[i].getNodeLevel()][child[i].getNodeHandle()].find(1) == nodeCount[child[i].getNodeLevel()][child[i].getNodeHandle()].end()) {
+      nodeCount[child[i].getNodeLevel()][child[i].getNodeHandle()][1] = 0;
+    }
+
+    if (child[i].getRule() == RULE_EL0 ||
+      child[i].getRule() == RULE_AL0 ||
+      child[i].getRule() == RULE_EH0 ||
+      child[i].getRule() == RULE_AH0
+    ) {
+      nodeCount[child[i].getNodeLevel()][child[i].getNodeHandle()][0] = 1;
+    }
+    if (child[i].getRule() == RULE_EL1 ||
+      child[i].getRule() == RULE_AL1 ||
+      child[i].getRule() == RULE_EH1 ||
+      child[i].getRule() == RULE_AH1
+    ) {
+      nodeCount[child[i].getNodeLevel()][child[0].getNodeHandle()][1] = 1;
+    }
+  }
+  
   if (nodeCache.find(nodeLevel) != nodeCache.end()) {
    nodeCache[nodeLevel][nodeHandle] = 1; 
   } else {
     nodeCache[nodeLevel] = {};
     nodeCache[nodeLevel][nodeHandle] = 1;
-  }
-  if (child[0].getNodeLevel() != 0) {
-    countNode(forest, child[0]);
-  }
-  if (child[1].getNodeLevel() != 0) {
-    countNode(forest, child[1]);
   }
   return;
 }
@@ -222,7 +260,10 @@ Func compute_saturation(Forest *forest1, const Func &target,
   } else {
     edgeMap[targ.getRule()] = 1;
   }
-  countNode(forest1, targ);
+
+  if (forest1->getSetting().hasReductionRule(RULE_AL0)) {
+    countNode(forest1, targ);
+  }
   return states_Sat;
 }
 int main(int argc, const char **argv) {
@@ -312,10 +353,18 @@ int main(int argc, const char **argv) {
   // setting1.output(std::cerr);
   compute_saturation(forest1, res1, relations);
   std::cout << ", ";
-  for (int i=0; i <= 12; i++) {
-    std::cout << edgeMap[(ReductionRule)i] << ", ";
+  for (Level i=0; i <= levels; i++) {
+    for (const auto& pair : nodeCount[i]) {
+      if (nodeCount[i][pair.first][0] && nodeCount[i][pair.first][1]) {
+        counter++;
+      } else if (nodeCount[i][pair.first][0]) {
+        counter1++; 
+      } else if (nodeCount[i][pair.first][1]) {
+        counter2++;
+      }
+    }
   }
-  std::cout << std::endl;
+  std::cout << counter << ", " << counter1 << ", " << counter2 << std::endl;
   delete forest1;
   delete forest2;
    // Ok we are comapring the function now
