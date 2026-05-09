@@ -168,12 +168,12 @@ Func compute_saturation(Forest *forest1, const Func &target,
   apply(SATURATE, target, relations, states_Sat);
   /* Timer end */
   watch.note_time();
-  std::cerr << "Peak Nodes: " << forest1->getNodeManPeak() << ","
-            << "Final Nodes: " << forest1->getNodeManUsed(states_Sat) << ","
-            << "Operation time: " << watch.get_last_seconds() << std::endl;
-  std::cout << forest1->getNodeManPeak() << " , "
-            << forest1->getNodeManUsed(states_Sat) << ", "
-            << watch.get_last_seconds();
+  // std::cerr << "Peak Nodes: " << forest1->getNodeManPeak() << ","
+  //           << "Final Nodes: " << forest1->getNodeManUsed(states_Sat) << ","
+  //           << "Operation time: " << watch.get_last_seconds() << std::endl;
+  // std::cout << forest1->getNodeManPeak() << " , "
+  //           << forest1->getNodeManUsed(states_Sat) << ", "
+  //           << watch.get_last_seconds();
 
   Edge targ = states_Sat.getEdge();
 
@@ -264,7 +264,15 @@ int main(int argc, const char **argv) {
     relCache.clear();
   }
   // setting1.output(std::cerr);
-  compute_saturation(forest1, res1, relations);
+  Func one = compute_saturation(forest1, res1, relations);
+  ForestSetting setting3(PredefForest::REXBDD, setting1.getNumVars());
+  Forest *forest3 = new Forest(setting3);
+  Func res2 = buildInit(forest3, initialMarking);
+  Func two = compute_saturation(forest3, res2, relations);
+  Func three(forest3);
+
+  apply(COPY, one, three);
+  std::cout << (three.getEdge().getEdgeHandle() == two.getEdge().getEdgeHandle()) << std::endl;
   std::cout << std::endl;
   delete forest1;
   delete forest2;
