@@ -1577,11 +1577,7 @@ Edge BinaryOperation::computeElmtWise(const Level lvl, const Edge& source1, cons
                 cofactLvl = m1 > m2 ? m1 : m1 + 1;
                 ans = operateS(lvl, cofactLvl, e1, e2);      
             } else if (r2 == RULE_00 || r2 == RULE_11) {
-                cofactLvl = m1;
-                if (e1.getComp()) cofactLvl = cofactLvl++;
-                else if (m1 == m2) {
-                    if (e2.getComp()) cofactLvl++;
-                }
+                cofactLvl = m1+1;
                 if (r1 == r2) {
                     ans = operateS(lvl, cofactLvl, e1, e2);
                 } else {
