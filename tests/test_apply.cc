@@ -213,8 +213,8 @@ int main(int argc, char** argv){
     bool isValued = 0;
     int TESTS = 1000000;
     uint16_t numVals = 18; 
-    PredefForest bdd = PredefForest::ROAR;
-    // PredefForest bdd = PredefForest::REXBDD;
+    // PredefForest bdd = PredefForest::ROAR;
+    PredefForest bdd = PredefForest::REXBDD;
     ForestSetting setting(bdd, numVals);
     setting.setCompType(COMP);
     setting.setSwapType(ONE);

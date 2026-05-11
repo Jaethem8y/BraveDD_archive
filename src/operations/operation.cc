@@ -1641,6 +1641,25 @@ Edge BinaryOperation::computeElmtWise(const Level lvl, const Edge& source1, cons
         char t1, t2;
         t1 = rulePattern(e1.getRule());
         t2 = rulePattern(e2.getRule());
+        bool canISkip = 0;
+        if (t1 == 'L') {
+            if (t2 == 'L') {
+               canISkip = true; 
+            } 
+        } else if (t1 == 'H') {
+            if (t2 == 'H') {
+               canISkip = true; 
+            } 
+        } else {
+            if (t2 == 'U') {
+               canISkip = true; 
+            }
+        }
+        if (!canISkip) {
+            ans = operateS(lvl, lvl, e1, e2);      
+            cacheAdd(0, lvl, e1, e2, ans);
+            return ans;
+        }
         if (t1 == 'L') {
             if (t2 == 'L' || t2 == 'U') {
                 ans = operateLL(lvl, e1, e2);
