@@ -214,8 +214,8 @@ mkdir -p rexSSG
 mkdir -p ubddSSG
 temp=${files[$SLURM_ARRAY_TASK_ID]}
 file="${temp%.csv}"
-./build/examples/06_state_space_generation "/lustre/hdd/las/ciardo-lab/jae/files/${file}" roar> "/lustre/hdd/las/ciardo-lab/jae/bravedd_archive/fbdd/${file}.csv"
+./build/examples/06_state_space_generation "../files/${file}" roar> "/ubddSSG/${file}.csv"
 
-./build/examples/06_state_space_generation "/lustre/hdd/las/ciardo-lab/jae/files/${file}" rex > "/lustre/hdd/las/ciardo-lab/jae/bravedd_archive/fbdd/${file}.csv"
+./build/examples/06_state_space_generation "../files/${file}" rex > "./rexSSG/${file}.csv"
 
-./build/examples/06_state_space_generation "/lustre/hdd/las/ciardo-lab/jae/files/${file}" cesr > "/lustre/hdd/las/ciardo-lab/jae/bravedd_archive/fbdd/${file}.csv"
+./build/examples/06_state_space_generation "../files/${file}" cesr > "./cesrSSG/${file}.csv"
