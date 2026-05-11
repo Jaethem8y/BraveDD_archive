@@ -1519,29 +1519,25 @@ Edge BinaryOperation::computeElmtWise(const Level lvl, const Edge& source1, cons
         // lvl > m1 >= m2
         ReductionRule r1 = e1.getRule();
         ReductionRule r2 = e2.getRule();
-        bool canISkip = true;
+        bool canISkip = false;
 
-        if (r1 == RULE_00) {
-            Edge targetChild = resForest->cofact(m1, e1, 0);
-            if (targetChild.getRule() != RULE_X) canISkip = false;
-        }
-        if (r1 == RULE_11) {
-            Edge targetChild = resForest->cofact(m1, e1, 1);
-            if (targetChild.getRule() != RULE_X) canISkip = false;
-        }
+        if (r1 == RULE_X || r2 == RULE_X) canISkip = true; 
 
-        if (r2 == RULE_00) {
-            Edge targetChild = resForest->cofact(m1, e2, 0);
-            if (targetChild.getRule() != RULE_X) canISkip = false;
+        if (r1 == RULE_00 && r1 == RULE_00) {
+            Edge targetChild1 = resForest->cofact(m1, e1, 0);
+            Edge targetChild2 = resForest->cofact(m1, e2, 0);
+            if (targetChild1.getRule() == RULE_X
+            && targetChild1.getNodeLevel() + 1 < m1) canISkip = true;
+            if (targetChild2.getRule() == RULE_X
+            && targetChild2.getNodeLevel() + 1 < m1) canISkip = true;
         }
-        if (r2 == RULE_11) {
-            Edge targetChild = resForest->cofact(m1, e2, 1);
-            if (targetChild.getRule() != RULE_X) canISkip = false;
-        }
-
-        // one of the rule is X 
-        if (r1 == RULE_X || r2 == RULE_X) {
-            canISkip = true;
+        if (r1 == RULE_11 && r2 == RULE_11) {
+            Edge targetChild1 = resForest->cofact(m1, e1, 1);
+            Edge targetChild2 = resForest->cofact(m1, e2, 1);
+            if (targetChild1.getRule() == RULE_X
+            && targetChild1.getNodeLevel() + 1 < m1) canISkip = true;
+            if (targetChild2.getRule() == RULE_X
+            && targetChild2.getNodeLevel() + 1 < m1) canISkip = true;
         }
 
         if (!canISkip && r1 == r2) {

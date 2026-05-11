@@ -209,13 +209,11 @@ shield_t_rv_003_b.txt.csv
 shield_s_ppp_002_a.txt.csv
 shield_t_iip_010_a.txt.csv
 )
-mkdir -p cesrSSG
-mkdir -p rexSSG
-mkdir -p ubddSSG
+mkdir -p cesrSSG2
+mkdir -p rexSSG2
+mkdir -p ubddSSG2
 temp=${files[$SLURM_ARRAY_TASK_ID]}
 file="${temp%.csv}"
-./build/examples/06_state_space_generation "../files/${file}" roar> "./ubddSSG/${file}.csv"
-
-./build/examples/06_state_space_generation "../files/${file}" rex > "./rexSSG/${file}.csv"
-
-./build/examples/06_state_space_generation "../files/${file}" cesr > "./cesrSSG/${file}.csv"
+./build/examples/06_state_space_generation "../files/${file}" roar> "./ubddSSG2/${file}.csv"
+./build/examples/06_state_space_generation "../files/${file}" rex > "./rexSSG2/${file}.csv"
+./build/examples/06_state_space_generation "../files/${file}" cesr > "./cesrSSG2/${file}.csv"
