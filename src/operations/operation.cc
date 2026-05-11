@@ -1553,6 +1553,10 @@ Edge BinaryOperation::computeElmtWise(const Level lvl, const Edge& source1, cons
             if (tr2 == RULE_X) canISkip = true;
         }
 
+        if (canISkip && r1 != r2) {
+            canISkip = false;
+        }
+
         if (!canISkip) {
             ans = operateS(lvl, lvl, e1, e2);      
             cacheAdd(0, lvl, e1, e2, ans);
@@ -1574,14 +1578,14 @@ Edge BinaryOperation::computeElmtWise(const Level lvl, const Edge& source1, cons
                 ans = operateS(lvl, cofactLvl, e1, e2);      
             } else if (r2 == RULE_00 || r2 == RULE_11) {
                 cofactLvl = m1;
+                if (e1.getComp()) cofactLvl = cofactLvl++;
+                else if (m1 == m2) {
+                    if (e2.getComp()) cofactLvl++;
+                }
                 if (r1 == r2) {
                     ans = operateS(lvl, cofactLvl, e1, e2);
                 } else {
-                    if (r1 == RULE_00) {
-                        ans = operateD(lvl, cofactLvl, e1, e2);
-                    } else {
-                       ans = operateD(lvl, cofactLvl, e2, e1);
-                    }
+                    std::cout << "nono" << std::endl;    
                 }
             }         
         } else {

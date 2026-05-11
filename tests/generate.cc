@@ -61,11 +61,11 @@ bool buildSetForest(uint16_t num, PredefForest bdd)
 
     apply(COPY, function, temp);
 
-    DotMaker dot(forest, "1");
+    DotMaker dot(forest, "a");
     dot.buildGraph(function);
     dot.runDot("pdf");
 
-    DotMaker dot1(forest1, "2");
+    DotMaker dot1(forest1, "b");
     dot1.buildGraph(temp);
     dot1.runDot("pdf");
     return 0;
