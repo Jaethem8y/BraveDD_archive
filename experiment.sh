@@ -214,7 +214,7 @@ mkdir -p rexSSG
 mkdir -p ubddSSG
 temp=${files[$SLURM_ARRAY_TASK_ID]}
 file="${temp%.csv}"
-./build/examples/06_state_space_generation "../files/${file}" roar> "/ubddSSG/${file}.csv"
+./build/examples/06_state_space_generation "../files/${file}" roar> "./ubddSSG/${file}.csv"
 
 ./build/examples/06_state_space_generation "../files/${file}" rex > "./rexSSG/${file}.csv"
 
