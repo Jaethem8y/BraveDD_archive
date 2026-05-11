@@ -1,4 +1,3 @@
-// #include "brave_dd.h"
 #include "../src/brave_dd.h"
 #include <sstream>
 #include <unordered_map>
@@ -157,7 +156,7 @@ Func buildTransition(Forest *forest, std::vector<uint16_t> inputs,
   return res;
 }
 
-Func compute_saturation(Forest *forest1, const Func &target,
+void compute_saturation(Forest *forest1, const Func &target,
                         const std::vector<Func> &relations) {
   forest1->getSetting().output(std::cerr);
   Func states_Sat(forest1);
@@ -174,10 +173,6 @@ Func compute_saturation(Forest *forest1, const Func &target,
   std::cout << forest1->getNodeManPeak() << " , "
             << forest1->getNodeManUsed(states_Sat) << ", "
             << watch.get_last_seconds();
-
-  Edge targ = states_Sat.getEdge();
-
-  return states_Sat;
 }
 int main(int argc, const char **argv) {
   // file bdd algorithm
@@ -264,7 +259,7 @@ int main(int argc, const char **argv) {
     relCache.clear();
   }
   // setting1.output(std::cerr);
-  Func one = compute_saturation(forest1, res1, relations);
+compute_saturation(forest1, res1, relations);
 
   delete forest1;
   delete forest2;
